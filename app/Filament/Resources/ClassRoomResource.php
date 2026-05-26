@@ -6,9 +6,15 @@ use App\Filament\Resources\ClassRoomResource\Pages;
 use App\Filament\Resources\ClassRoomResource\RelationManagers;
 use App\Models\ClassRoom;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -25,12 +31,12 @@ class ClassRoomResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
                     ->label('Nama Kelas')
                     ->placeholder('Contoh: X IPA 1')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Select::make('level')
+                Select::make('level')
                     ->label('Tingkat')
                     ->options([
                         'X' => 'X',
@@ -45,11 +51,11 @@ class ClassRoomResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Nama Kelas')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('level')
+                TextColumn::make('level')
                     ->label('Tingkat')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -58,15 +64,15 @@ class ClassRoomResource extends Resource
                         'XII' => 'danger',
                     })
                     ->searchable(),
-                Tables\Columns\TextColumn::make('students_count')
+                TextColumn::make('students_count')
                     ->label('Jumlah Siswa')
                     ->counts('students')
                     ->alignCenter(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -75,11 +81,11 @@ class ClassRoomResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
