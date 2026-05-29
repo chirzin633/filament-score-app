@@ -36,14 +36,16 @@ class StudentResource extends Resource
             ->schema([
                 TextInput::make('nis')
                     ->label('NIS')
-                    ->required()
+                    ->disabled()
+                    ->rules(['required'])
                     ->unique(ignoreRecord: true)
+                    ->dehydrated(true)
                     ->validationAttribute('NIS')
                     ->maxLength(20),
 
                 TextInput::make('name')
                     ->label('Nama Lengkap')
-                    ->required()
+                    ->rules(['required', 'string'])
                     ->maxLength(255),
 
                 Select::make('gender')
@@ -52,13 +54,13 @@ class StudentResource extends Resource
                         'L' => 'Laki-laki',
                         'P' => 'Perempuan'
                     ])
-                    ->required(),
+                    ->rules(['required']),
 
                 Select::make('class_id')
                     ->label('Kelas')
                     ->relationship('classRoom', 'name')
                     ->searchable()
-                    ->required(),
+                    ->rules(['required']),
 
                 FileUpload::make('photo')
                     ->label('Foto')

@@ -19,6 +19,7 @@ use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -52,58 +53,70 @@ class ScoreResource extends Resource
 
                 TextInput::make('tugas')
                     ->label('Nilai Tugas')
-                    ->minValue(0)
-                    ->maxValue(100)
                     ->live(onBlur: true)
-                    ->required()
-                    ->numeric()
+                    ->rules(['required', 'numeric', 'gte:0', 'lte:100'])
+                    ->default(0)
+                    ->validationMessages([
+                        'required' => 'Nilai tugas wajib diisi!',
+                        'numeric' => 'Harus berupa angka.',
+                        'lte' => 'Nilai maksimal 100',
+                        'gte' => 'Nilai minimal 0'
+                    ])
                     ->afterStateUpdated(fn(Get $get, Set $set) => self::updateFinalScore($get, $set))
-                    ->default(0),
+                    ->afterStateHydrated(fn(Get $get, Set $set) => self::updateFinalScore($get, $set)),
 
                 TextInput::make('uts')
                     ->label('Nilai UTS')
-                    ->minValue(0)
-                    ->maxValue(100)
                     ->live(onBlur: true)
-                    ->required()
-                    ->numeric()
+                    ->rules(['required', 'numeric', 'gte:0', 'lte:100'])
+                    ->default(0)
+                    ->validationMessages([
+                        'required' => 'Nilai UTS wajib diisi!',
+                        'numeric' => 'Harus berupa angka.',
+                        'lte' => 'Nilai maksimal 100',
+                        'gte' => 'Nilai minimal 0'
+                    ])
                     ->afterStateUpdated(fn(Get $get, Set $set) => self::updateFinalScore($get, $set))
-                    ->default(0),
+                    ->afterStateHydrated(fn(Get $get, Set $set) => self::updateFinalScore($get, $set)),
 
                 TextInput::make('uas')
                     ->label('Nilai UAS')
-                    ->minValue(0)
-                    ->maxValue(100)
                     ->live(onBlur: true)
-                    ->required()
-                    ->numeric()
+                    ->default(0)
+                    ->rules(['required', 'numeric', 'gte:0', 'lte:100'])
+                    ->validationMessages([
+                        'required' => 'Nilai UAS wajib diisi!',
+                        'numeric' => 'Harus berupa angka.',
+                        'lte' => 'Nilai maksimal 100',
+                        'gte' => 'Nilai minimal 0'
+                    ])
                     ->afterStateUpdated(fn(Get $get, Set $set) => self::updateFinalScore($get, $set))
-                    ->default(0),
+                    ->afterStateHydrated(fn(Get $get, Set $set) => self::updateFinalScore($get, $set)),
 
                 Placeholder::make('final_preview')
                     ->label('Nilai Akhir')
                     ->content(function (Get $get): string {
-                        $tugas = $get('tugas') ?? 0;
-                        $uts = $get('uts') ?? 0;
-                        $uas = $get('uas') ?? 0;
-                        $final = ($tugas * 0.3) + ($uts * 0.3) + ($uas * 0.4);
+                        $tugas = (float) $get('tugas') ?: 0;
+                        $uts = (float) $get('uts') ?: 0;
+                        $uas = (float) $get('uas') ?: 0;
+                        $final = round(($tugas * 0.3) + ($uts * 0.3) + ($uas * 0.4), 2);
                         $keterangan = $final >= 75 ? '✅ LULUS' : '❌ REMEDIAL';
                         return number_format($final, 2) . " - {$keterangan}";
                     })
                     ->columnSpanFull(),
 
                 Hidden::make('final_score')
-                    ->default(0.00),
             ])
             ->columns(3);
     }
 
     public static function updateFinalScore(Get $get, Set $set): void
     {
-        $tugas = (float) ($get('tugas') ?? '0');
-        $uts = (float) ($get('uts') ?? '0');
-        $uas = (float) ($get('uas') ?? '0');
-        $final = ($tugas * 0.3) + ($uts * 0.3) + ($uas * 0.4);
+        $tugas = ((float) $get('tugas') ?? 0);
+        $uts = ((float) $get('uts') ?? 0);
+        $uas = ((float) $get('uas') ?? 0);
+
+        $final = round(($tugas * 0.3) + ($uts * 0.3) + ($uas * 0.4), 2);
 
         $set('final_score', $final);
     }
@@ -113,34 +126,59 @@ class ScoreResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('student.name')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Nama Siswa')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('subject.name')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Mata Pelajaran')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('tugas')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('uts')
+                    ->label('UTS')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('uas')
+                    ->label('UAS')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('final_score')
+                    ->label('Final Skor')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->getStateUsing(fn($record) => $record->final_score >= 75 ? 'LULUS' : 'REMEDIAL')
+                    ->color(fn(string $state): string => match ($state) {
+                        'LULUS' => 'success',
+                        'REMEDIAL' => 'danger'
+                    }),
+                // TextColumn::make('created_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
+                // TextColumn::make('updated_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('status_filter')
+                    ->label('Status Nilai')
+                    ->options([
+                        'lulus' => 'Lulus',
+                        'remedial' => 'Remedial'
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return match ($data['value'] ?? null) {
+                            'lulus' => $query->where('final_score', '>=', 75),
+                            'remedial' => $query->where('final_Score', '<', 75),
+                            default => $query
+                        };
+                    }),
             ])
             ->actions([
                 EditAction::make(),
