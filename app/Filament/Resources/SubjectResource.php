@@ -33,21 +33,18 @@ class SubjectResource extends Resource
                 TextInput::make('code')
                     ->label('Kode Mapel')
                     ->unique(ignoreRecord: true)
-                    ->required()
+                    ->rules(['required'])
                     ->maxLength(10),
 
                 TextInput::make('name')
                     ->label('Nama Mapel')
-                    ->required()
+                    ->rules(['required'])
                     ->maxLength(255),
 
                 TextInput::make('kkm')
                     ->label('KKM')
-                    ->numeric()
-                    ->minValue(0)
-                    ->maxValue(100)
                     ->default(75)
-                    ->required()
+                    ->rules(['required', 'min:0', 'max:100', 'numeric'])
 
             ]);
     }
