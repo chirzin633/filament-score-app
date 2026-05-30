@@ -33,7 +33,7 @@ class StatsOverview extends BaseWidget
                 ->chart([3, 4, 3, 5, 4, 6, $totalClasses]),
 
             Stat::make('Mata Pelajaran', $totalSubjects)
-                ->description('Mapel terrsedia')
+                ->description('Mapel tersedia')
                 ->descriptionIcon('heroicon-m-book-open')
                 ->color('warning')
                 ->chart([5, 7, 6, 8, 7, 9, $totalSubjects]),

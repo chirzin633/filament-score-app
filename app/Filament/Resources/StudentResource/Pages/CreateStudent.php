@@ -45,4 +45,16 @@ class CreateStudent extends CreateRecord
 
         return $date . $newNumber;
     }
+
+    #[Override]
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
+    #[Override]
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return 'Student has been created successfully.';
+    }
 }

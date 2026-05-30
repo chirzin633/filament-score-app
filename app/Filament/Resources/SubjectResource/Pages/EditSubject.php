@@ -5,10 +5,17 @@ namespace App\Filament\Resources\SubjectResource\Pages;
 use App\Filament\Resources\SubjectResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Override;
 
 class EditSubject extends EditRecord
 {
     protected static string $resource = SubjectResource::class;
+
+    #[Override]
+    protected function getRedirectUrl(): ?string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 
     protected function getHeaderActions(): array
     {

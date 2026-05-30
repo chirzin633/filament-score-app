@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Exports\ScoreExport;
 use App\Filament\Resources\ScoreResource\Pages;
 use App\Filament\Resources\ScoreResource\RelationManagers;
 use App\Models\Score;
@@ -15,6 +16,7 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
@@ -23,6 +25,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ScoreResource extends Resource
 {
@@ -179,6 +182,15 @@ class ScoreResource extends Resource
                             default => $query
                         };
                     }),
+            ])
+            ->headerActions([
+                Action::make('export_scores')
+                    ->label('Export Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function () {
+                        return Excel::download(new ScoreExport, 'data-nilai.xlsx');
+                    })
             ])
             ->actions([
                 EditAction::make(),

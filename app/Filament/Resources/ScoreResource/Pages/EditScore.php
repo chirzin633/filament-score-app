@@ -5,10 +5,17 @@ namespace App\Filament\Resources\ScoreResource\Pages;
 use App\Filament\Resources\ScoreResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Override;
 
 class EditScore extends EditRecord
 {
     protected static string $resource = ScoreResource::class;
+
+    #[Override]
+    protected function getRedirectUrl(): ?string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 
     protected function getHeaderActions(): array
     {
