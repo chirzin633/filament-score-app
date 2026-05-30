@@ -75,8 +75,8 @@ Aplikasi manajemen penilaian siswa berbasis web yang dibangun menggunakan **Lara
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/username/nilai-siswa.git
-cd nilai-siswa
+git clone https://github.com/chirzin633/filament-score-app.git
+cd filament-score-app
 
 # 2. Install dependencies
 composer install
