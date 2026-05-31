@@ -128,8 +128,13 @@ class StudentResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make()
-
+                DeleteAction::make(),
+                Action::make('download_raport')
+                    ->label('Raport')
+                    ->icon('heroicon-o-printer')
+                    ->color('warning')
+                    ->url(fn($record) => route('raport.download', $record->id))
+                    ->openUrlInNewTab()
             ])
             ->headerActions([
                 Action::make('export_students')
