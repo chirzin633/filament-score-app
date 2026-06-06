@@ -17,7 +17,9 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Override;
 
 class SubjectResource extends Resource
 {
@@ -25,6 +27,7 @@ class SubjectResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
     protected static ?string $navigationLabel = 'Mapel';
     protected static ?string $pluralLabel = 'Mata Pelajaran';
+    protected static ?string $navigationGroup = 'Data Master';
 
     public static function form(Form $form): Form
     {
@@ -106,5 +109,23 @@ class SubjectResource extends Resource
             'create' => Pages\CreateSubject::route('/create'),
             'edit' => Pages\EditSubject::route('/{record}/edit'),
         ];
+    }
+
+    #[Override]
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()?->isAdmin() ?? false;
+    }
+
+    #[Override]
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->isAdmin() ?? false;
+    }
+
+    #[Override]
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()?->isAdmin() ?? false;
     }
 }

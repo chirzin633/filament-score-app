@@ -17,7 +17,9 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Override;
 
 class ClassRoomResource extends Resource
 {
@@ -25,6 +27,7 @@ class ClassRoomResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
     protected static ?string $navigationLabel = 'Kelas';
     protected static ?string $pluralLabel = 'Data Kelas';
+    protected static ?string $navigationGroup = 'Data Master';
 
 
     public static function form(Form $form): Form
@@ -104,5 +107,23 @@ class ClassRoomResource extends Resource
             'create' => Pages\CreateClassRoom::route('/create'),
             'edit' => Pages\EditClassRoom::route('/{record}/edit'),
         ];
+    }
+
+    #[Override]
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->isAdmin() ?? false;
+    }
+
+    #[Override]
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()?->isAdmin() ?? false;
+    }
+
+    #[Override]
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()?->isAdmin() ?? false;
     }
 }

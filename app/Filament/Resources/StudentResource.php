@@ -23,8 +23,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Maatwebsite\Excel\Facades\Excel;
+use Override;
 
 class StudentResource extends Resource
 {
@@ -32,6 +34,7 @@ class StudentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationLabel = 'Siswa';
     protected static ?string $pluralLabel = 'Data Siswa';
+    protected static ?string $navigationGroup = 'Data Master';
 
     public static function form(Form $form): Form
     {
@@ -166,5 +169,23 @@ class StudentResource extends Resource
             'create' => Pages\CreateStudent::route('/create'),
             'edit' => Pages\EditStudent::route('/{record}/edit'),
         ];
+    }
+
+    #[Override]
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->isAdmin() ?? false;
+    }
+
+    #[Override]
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()?->isAdmin() ?? false;
+    }
+
+    #[Override]
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()?->isAdmin() ?? false;
     }
 }

@@ -24,8 +24,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Maatwebsite\Excel\Facades\Excel;
+use Override;
 
 class ScoreResource extends Resource
 {
@@ -33,6 +35,7 @@ class ScoreResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
     protected static ?string $navigationLabel = 'Nilai';
     protected static ?string $pluralLabel = 'Input Nilai';
+    protected static ?string $navigationGroup = 'Manajemen Nilai';
 
     public static function form(Form $form): Form
     {
@@ -107,6 +110,9 @@ class ScoreResource extends Resource
                         return number_format($final, 2) . " - {$keterangan}";
                     })
                     ->columnSpanFull(),
+
+                Hidden::make('teacher_id')
+                    ->default(fn() => auth()->id()),
 
                 Hidden::make('final_score')
             ])
@@ -216,5 +222,31 @@ class ScoreResource extends Resource
             'create' => Pages\CreateScore::route('/create'),
             'edit' => Pages\EditScore::route('/{record}/edit'),
         ];
+    }
+
+    #[Override]
+    public static function canEdit(Model $record): bool
+    {
+        $user = auth()->user();
+        if ($user->isAdmin()) return true;
+        return $record->teacher_id === $user->id;
+    }
+
+    #[Override]
+    public static function canDelete(Model $record): bool
+    {
+        $user = auth()->user();
+        if ($user->isAdmin()) return true;
+        return $record->teacher_id === $user->id;
+    }
+
+    #[Override]
+    public static function getEloquentQuery(): Builder
+    {
+        $user = auth()->user();
+        if ($user->isAdmin()) {
+            return parent::getEloquentQuery();
+        }
+        return parent::getEloquentQuery()->where('teacher_id', $user->id);
     }
 }
